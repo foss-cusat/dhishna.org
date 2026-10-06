@@ -4,9 +4,9 @@ export const CAMERA_TARGET = [0, 6.5, 4] as const;
 
 export function cameraSpan(width: number, height: number, mobile = false): number {
   const aspect = width / Math.max(height, 1);
-  // Preserve both towers on narrow screens; avoid shrinking the campus on ultrawide displays.
+  // Bring the building closer on phones while retaining vertical context on short screens.
   return mobile
-    ? Math.max(34, 52 / Math.max(aspect, .65))
+    ? Math.max(34, 36 / Math.max(aspect, .65))
     : Math.max(39, 60 / Math.max(aspect, .5));
 }
 

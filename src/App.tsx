@@ -43,19 +43,15 @@ export default function App() {
         <span className="brand-name">dhishna<span className="brand-year">/27</span></span>
       </a>
       <div className="header-right">
-        <span className="university"><span className="tiny-dot" /> CUSAT, KOCHI</span>
+        <span className="university"><span className="tiny-dot" /> KOCHI</span>
       </div>
     </header>
 
     <section className="hero-copy" id="welcome" aria-labelledby="hero-title">
       <div className="eyebrow"><span className="eyebrow-line" /> CUSAT’S TECH FEST <span className="eyebrow-year">2027</span></div>
       <h1 id="hero-title">Something's<br /><span className="alive">brewing<Spark className="headline-spark" /></span></h1>
-      <p className="hero-description">A little curiosity. A lot of possibility.<br />Something extraordinary is taking shape<br className="desktop-break" /> at CUSAT. And you’re part of it.</p>
-      <div className="coming-soon"><span className="status-dot" /> THE NEXT CHAPTER IS COMING</div>
       <div className="date-location">
         <div className="date"><span className="date-month">JANUARY</span><span className="date-year">2027</span></div>
-        <span className="date-divider" />
-        <div className="location"><span className="location-title">Back where it all begins.</span><span>Cochin University of Science<br />and Technology · Kochi, Kerala</span></div>
       </div>
     </section>
 
