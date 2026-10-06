@@ -1,0 +1,252 @@
+{
+  "profile": "mobile",
+  "sourceBytes": 57858436,
+  "sourceTriangles": 724287,
+  "grassBlades": 67141,
+  "rootVertices": 134282,
+  "windMeshes": 174,
+  "triangles": 403325,
+  "runtimeMeshes": 61,
+  "drawCalls": 65,
+  "textureBytes": 28432,
+  "textures": [
+    {
+      "name": "V2_grit_normal",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 544
+    },
+    {
+      "name": "V2_curb_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 878
+    },
+    {
+      "name": "V2_clay_normal",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 544
+    },
+    {
+      "name": "V2_Roof0_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 1354
+    },
+    {
+      "name": "V2_Roof1_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 1102
+    },
+    {
+      "name": "V2_Roof2_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 1382
+    },
+    {
+      "name": "V2_Roof3_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 1056
+    },
+    {
+      "name": "V2_Roof4_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 1264
+    },
+    {
+      "name": "V2_Roof5_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 1102
+    },
+    {
+      "name": "V2_white_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 1102
+    },
+    {
+      "name": "V2_timber_normal",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 544
+    },
+    {
+      "name": "V2_wood_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 1464
+    },
+    {
+      "name": "V4_PlasterWear_Normal",
+      "size": [
+        512,
+        256
+      ],
+      "bytes": 364
+    },
+    {
+      "name": "V4_Weathered_cream_BaseColor",
+      "size": [
+        512,
+        256
+      ],
+      "bytes": 684
+    },
+    {
+      "name": "V4_PlasterWear_Roughness",
+      "size": [
+        512,
+        256
+      ],
+      "bytes": 2038
+    },
+    {
+      "name": "V4_Weathered_pink_BaseColor",
+      "size": [
+        512,
+        256
+      ],
+      "bytes": 2604
+    },
+    {
+      "name": "V4_Weathered_pinklight_BaseColor",
+      "size": [
+        512,
+        256
+      ],
+      "bytes": 1760
+    },
+    {
+      "name": "V4_Weathered_white_BaseColor",
+      "size": [
+        512,
+        256
+      ],
+      "bytes": 1056
+    },
+    {
+      "name": "V2_cream_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 834
+    },
+    {
+      "name": "V2_pink_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 748
+    },
+    {
+      "name": "V2_bark_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 1818
+    },
+    {
+      "name": "V2_earth_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 738
+    },
+    {
+      "name": "V2_grass_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 712
+    },
+    {
+      "name": "V2_path_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 918
+    },
+    {
+      "name": "V2_pinklight_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 734
+    },
+    {
+      "name": "V2_road_color",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 1088
+    }
+  ],
+  "wind": "GPU vertex displacement with zero-weight roots; authoring animation retained in Blender",
+  "compression": [
+    "EXT_meshopt_compression",
+    "KHR_mesh_quantization",
+    "EXT_texture_webp"
+  ],
+  "camera": {
+    "position": [
+      34,
+      43,
+      62
+    ],
+    "target": [
+      0,
+      4,
+      4
+    ],
+    "horizontalSpan": 73
+  },
+  "landmarks": {
+    "cusatGate": true,
+    "centralStatue": true,
+    "extraTrees": 13,
+    "statueScale": 1.25,
+    "facadeWeathering": true,
+    "raisedRoofTiles": true
+  },
+  "glbBytes": 8007432,
+  "hash": "3d02b0e1c02e",
+  "byteReductionPercent": 86.2
+}
