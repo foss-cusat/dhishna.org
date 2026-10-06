@@ -65,4 +65,39 @@ The page remains the January 2027 coming-soon hero. It does not invent dates, re
 
 `npm run build` creates the static site in `dist/`. Serve it at the domain root. Enable gzip/Brotli for JS/CSS/JSON, cache hashed assets, and revalidate model/poster files on releases. No backend or environment variables are needed.
 
+
+### Automatic EC2 deployment
+
+`.github/workflows/deploy.yml` runs on pushes to `main`, or manually from the Actions tab with `main` selected. It installs dependencies with `npm ci`, builds the site, checks deployment behavior, and uploads the contents of `dist/` to `/var/www/dhishna.org` over SSH.
+
+In **GitHub repository → Settings → Secrets and variables → Actions**, add these repository secrets:
+
+| Secret | Value |
+|---|---|
+| `EC2_HOST` | Server IP address or DNS hostname, without a URL scheme |
+| `EC2_USER` | SSH login user, such as `ubuntu` or `ec2-user` |
+| `EC2_SSH_KEY` | Complete private key, including its header/footer and newlines; its public key must be authorized for that user |
+| `EC2_KNOWN_HOSTS` | Verified SSH host-key entry for the server |
+| `EC2_PORT` | Optional SSH port; defaults to `22` |
+
+Use a deployment key that can authenticate without a passphrase prompt. To obtain the host's public key from an already trusted EC2 console/session, for example:
+
+```sh
+cat /etc/ssh/ssh_host_ed25519_key.pub
+```
+
+Set `EC2_KNOWN_HOSTS` to a line containing the same host as `EC2_HOST`, followed by the key type and public key:
+
+```text
+your-server-host ssh-ed25519 YOUR_SERVER_PUBLIC_HOST_KEY
+```
+
+For a nonstandard port, use `[your-server-host]:2222` in that entry. This is the server's public host key, separate from the deployment user's login key. The workflow verifies it before transferring files.
+
+The server needs `rsync`, an existing `/var/www/dhishna.org` directory whose files and permissions can be updated by `EC2_USER` (normally owned by that user), and SSH connectivity from the GitHub Actions runner. The existing web server should already serve that directory at the domain root. The workflow only uploads static files; it does not install or reconfigure the server.
+
+Assets upload first and `index.html` publishes last, after successful transfer. Existing hashed assets are retained for visitors with an older page open; matching filenames are updated and unrelated files are not deleted. This is an in-place deployment, not an atomic release rollback. Deployments run one at a time.
+
+Commit the workflow, `scripts/deploy-ec2.sh`, and `tests/deploy.test.mjs`, then push to `main` after setting the secrets. See [GitHub's repository-secret instructions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets) for the settings UI.
+
 Technical references: [glTF Transform](https://gltf-transform.dev/), [Meshopt compression](https://gltf-transform.dev/modules/extensions/classes/EXTMeshoptCompression), [Three.js GLTFLoader](https://threejs.org/docs/pages/GLTFLoader.html).
