@@ -94,6 +94,8 @@ your-server-host ssh-ed25519 YOUR_SERVER_PUBLIC_HOST_KEY
 
 For a nonstandard port, use `[your-server-host]:2222` in that entry. This is the server's public host key, separate from the deployment user's login key. The workflow verifies it before transferring files.
 
+Paste the complete host-key line without surrounding quotes, a shell prompt, or a `SHA256:` fingerprint. The script checks that the entry matches `EC2_HOST` and `EC2_PORT` and contains a valid public key before connecting; SSH then verifies it against the server. If no entry matches, confirm the host and port secrets and the host prefix in `EC2_KNOWN_HOSTS`.
+
 The server needs `rsync`, an existing `/var/www/dhishna.org` directory whose files and permissions can be updated by `EC2_USER` (normally owned by that user), and SSH connectivity from the GitHub Actions runner. The existing web server should already serve that directory at the domain root. The workflow only uploads static files; it does not install or reconfigure the server.
 
 Assets upload first and `index.html` publishes last, after successful transfer. Existing hashed assets are retained for visitors with an older page open; matching filenames are updated and unrelated files are not deleted. This is an in-place deployment, not an atomic release rollback. Deployments run one at a time.

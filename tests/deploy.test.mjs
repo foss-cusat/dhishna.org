@@ -6,6 +6,8 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const deployScript = resolve('scripts/deploy-ec2.sh');
+// Public key from a throwaway fixture; its private key is not retained.
+const hostPublicKey = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL/h0WdZmOz91Ok98zhgIJpdbRcNA315VBgGM30D8ID8';
 
 // Exercise actual rsync transfers against a temporary directory. SSH is replaced
 // with a local transport so these checks never contact a deployment server.
@@ -62,7 +64,7 @@ function fixture(t) {
     EC2_USER: 'deploy',
     EC2_PORT: '2222',
     EC2_SSH_KEY: 'test key',
-    EC2_KNOWN_HOSTS: '[example.invalid]:2222 ssh-ed25519 test-host-key',
+    EC2_KNOWN_HOSTS: `[example.invalid]:2222 ${hostPublicKey}`,
     DEPLOY_TEST_LOG: join(root, 'transport.log'),
     DEPLOY_TEST_DEST: join(root, 'live'),
   };
@@ -122,5 +124,63 @@ test('missing secrets, invalid SSH configuration, and incomplete builds fail bef
   rmSync(join(f.root, 'dist/models/cusat-mobile.glb'));
   assert.notEqual(f.run().status, 0);
   assert.equal(f.connections().length, 0);
+  f.checkCleanup();
+});
+
+test('host-key entries for a different host or port fail before connecting', (t) => {
+  const f = fixture(t);
+  for (const entry of [
+    `[other.invalid]:2222 ${hostPublicKey}`,
+    `[example.invalid]:22 ${hostPublicKey}`,
+    `example.invalid ${hostPublicKey}`,
+    hostPublicKey,
+    `"[example.invalid]:2222 ${hostPublicKey}"`,
+  ]) {
+    const result = f.run({EC2_KNOWN_HOSTS: entry});
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /EC2_KNOWN_HOSTS has no entry matching EC2_HOST and EC2_PORT/);
+    assert.match(result.stderr, /Expected entry format: \[example\.invalid\]:2222/);
+    assert.equal(f.connections().length, 0);
+    assert.equal(f.read('live/index.html'), 'old-entry');
+    f.checkCleanup();
+  }
+});
+
+test('a fingerprint or malformed public key fails before connecting', (t) => {
+  const f = fixture(t);
+  for (const key of ['SHA256:not-a-public-key', 'truncated-key']) {
+    const result = f.run({EC2_KNOWN_HOSTS: `[example.invalid]:2222 ssh-ed25519 ${key}`});
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /EC2_KNOWN_HOSTS.*no valid public key/);
+    assert.equal(f.connections().length, 0);
+    assert.equal(f.read('live/index.html'), 'old-entry');
+    f.checkCleanup();
+  }
+});
+
+test('default and zero-padded ports use the canonical OpenSSH host lookup', (t) => {
+  const f = fixture(t);
+  for (const [port, host] of [
+    ['', 'example.invalid'], ['22', 'example.invalid'],
+    ['00022', 'example.invalid'], ['02222', '[example.invalid]:2222'],
+  ]) {
+    const result = f.run({EC2_PORT: port, EC2_KNOWN_HOSTS: `${host} ${hostPublicKey}`});
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(f.read('live/index.html'), 'new-entry');
+    f.checkCleanup();
+  }
+});
+
+test('verified hashed host-key entries and Windows line endings are accepted', (t) => {
+  const f = fixture(t);
+  const knownHosts = join(f.root, 'hashed_hosts');
+  writeFileSync(knownHosts, `[example.invalid]:2222 ${hostPublicKey}\n`);
+  const hash = spawnSync('ssh-keygen', ['-H', '-f', knownHosts], {encoding: 'utf8'});
+  assert.equal(hash.status, 0, hash.stderr);
+  const entry = readFileSync(knownHosts, 'utf8');
+  assert(entry.startsWith('|1|'), 'The fixture uses a hashed hostname');
+  const result = f.run({EC2_KNOWN_HOSTS: entry.replaceAll('\n', '\r\n')});
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(f.read('live/index.html'), 'new-entry');
   f.checkCleanup();
 });

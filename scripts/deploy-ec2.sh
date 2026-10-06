@@ -16,11 +16,13 @@ EC2_PORT="${EC2_PORT:-22}"
   echo "EC2_PORT must be a port number from 1 to 65535" >&2
   exit 1
 }
+EC2_PORT=$((10#$EC2_PORT))
 
 for file in index.html models/cusat.glb models/cusat-mobile.glb campus-poster.webp; do
   [[ -s "dist/$file" ]] || { echo "Missing build file: dist/$file. Run npm run build first." >&2; exit 1; }
 done
 command -v ssh >/dev/null
+command -v ssh-keygen >/dev/null
 command -v rsync >/dev/null
 
 deploy_path=/var/www/dhishna.org
@@ -30,6 +32,25 @@ trap 'rm -rf -- "$ssh_dir"' EXIT
 printf '%s\n' "$EC2_SSH_KEY" | tr -d '\r' > "$ssh_dir/key"
 printf '%s\n' "$EC2_KNOWN_HOSTS" | tr -d '\r' > "$ssh_dir/known_hosts"
 unset EC2_SSH_KEY EC2_KNOWN_HOSTS
+
+# Validate the entry using the same host/port lookup as OpenSSH, including
+# hashed known_hosts entries. Never fetch or silently trust a replacement key.
+host_lookup="$EC2_HOST"
+if ((EC2_PORT != 22)); then
+  host_lookup="[$EC2_HOST]:$EC2_PORT"
+fi
+if ! ssh-keygen -F "$host_lookup" -f "$ssh_dir/known_hosts" > "$ssh_dir/matching_hosts" 2>/dev/null; then
+  echo "EC2_KNOWN_HOSTS has no entry matching EC2_HOST and EC2_PORT." >&2
+  printf 'Expected entry format: %s KEY_TYPE BASE64_PUBLIC_HOST_KEY\n' "$host_lookup" >&2
+  echo "Paste the complete verified host-key line, without quotes, a shell prompt, or a SHA256 fingerprint." >&2
+  exit 1
+fi
+if ! ssh-keygen -lf "$ssh_dir/matching_hosts" -E sha256 >/dev/null 2>&1; then
+  echo "EC2_KNOWN_HOSTS matches the host and port but contains no valid public key." >&2
+  echo "Use the complete key type and base64 key from the server's public host-key file, not its SHA256 fingerprint." >&2
+  exit 1
+fi
+
 cat > "$ssh_dir/config" <<EOF
 Host dhishna-deploy
     HostName $EC2_HOST
